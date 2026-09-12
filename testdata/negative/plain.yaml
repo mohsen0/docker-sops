@@ -1,0 +1,3 @@
+# not encrypted; contains the word sops on purpose
+sops: this is just a value
+mac: not-real

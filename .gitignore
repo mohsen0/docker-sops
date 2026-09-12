@@ -1,0 +1,6 @@
+/bin/
+/dist/
+*.dec
+*.dec.*
+coverage.out
+.DS_Store
