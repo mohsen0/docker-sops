@@ -37,6 +37,11 @@ mkdir -p ~/.docker/cli-plugins
 mv docker-sops_*_darwin_arm64 ~/.docker/cli-plugins/docker-sops
 ```
 
+Windows: move the `.exe` to `%USERPROFILE%\.docker\cli-plugins\docker-sops.exe`.
+Windows binaries are built and shipped but not yet covered by the test
+suite; WSL users should use the Linux binary. Keys can live in Credential
+Manager, see [docs/keychain.md](docs/keychain.md).
+
 From source: `make install` (needs Go 1.27+).
 
 ## How it works

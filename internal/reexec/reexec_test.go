@@ -1,3 +1,8 @@
+//go:build !windows
+
+// These tests drive Run with POSIX shell scripts and signals; Windows only
+// gets a compile check in CI.
+
 package reexec
 
 import (

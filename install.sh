@@ -35,7 +35,7 @@ detect_os() {
 	case "$uname_os" in
 	Linux) echo linux ;;
 	Darwin) echo darwin ;;
-	*) die "unsupported OS: $uname_os (docker-sops only ships linux and darwin binaries)" ;;
+	*) die "unsupported OS: $uname_os (this script covers linux and darwin; on Windows download the .exe from the releases page)" ;;
 	esac
 }
 
