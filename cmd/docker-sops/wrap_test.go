@@ -17,7 +17,7 @@ func fakeDocker(t *testing.T, exit int) (logPath string) {
 	t.Helper()
 	dir := t.TempDir()
 	logPath = filepath.Join(dir, "log")
-	script := "#!/bin/sh\nfor a in \"$@\"; do printf '%s\\n' \"$a\" >> \"$LOG\"; if [ -f \"$a\" ]; then cat \"$a\" >> \"$LOG\"; fi; done\nexit " + itoa(exit) + "\n"
+	script := "#!/bin/sh\nfor a in \"$@\"; do printf '%s\\n' \"$a\" >> \"$LOG\"; if [ -f \"$a\" ]; then cat \"$a\" >> \"$LOG\"; fi; done\nfor v in $(env | sed -n 's/^\\(DOCKER_SOPS_[A-Za-z0-9_]*\\)=.*/\\1/p'); do printf '%s=' \"$v\" >> \"$LOG\"; printenv \"$v\" >> \"$LOG\"; done\nexit " + itoa(exit) + "\n"
 	bin := filepath.Join(dir, "docker")
 	if err := os.WriteFile(bin, []byte(script), 0o755); err != nil {
 		t.Fatal(err)
@@ -180,5 +180,115 @@ func TestWrapMissingKeyFailsBeforeRunningDocker(t *testing.T) {
 	}
 	if _, statErr := os.Stat(logPath); !os.IsNotExist(statErr) {
 		t.Fatal("docker was executed despite decrypt failure")
+	}
+}
+
+func writeFile(t *testing.T, path, content string) {
+	t.Helper()
+	if err := os.WriteFile(path, []byte(content), 0o600); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func composeProject(t *testing.T) string {
+	t.Helper()
+	dir := t.TempDir()
+	enc, _ := os.ReadFile(filepath.Join(testdata, "enc", "app.env"))
+	writeFile(t, filepath.Join(dir, "secrets.env"), string(enc))
+	encY, _ := os.ReadFile(filepath.Join(testdata, "enc", "secrets.yaml"))
+	writeFile(t, filepath.Join(dir, "db.enc.yaml"), string(encY))
+	writeFile(t, filepath.Join(dir, "compose.yaml"), `services:
+  web:
+    image: alpine
+    env_file:
+      - secrets.env
+    secrets: [db]
+secrets:
+  db:
+    file: ./db.enc.yaml
+`)
+	return dir
+}
+
+func TestWrapComposeAppendsOverrideBeforeSubcommand(t *testing.T) {
+	logPath := fakeDocker(t, 0)
+	dir := composeProject(t)
+	oldWd, _ := os.Getwd()
+	_ = os.Chdir(dir)
+	defer os.Chdir(oldWd)
+
+	_, stderr, err := runWrap(t, "compose", "--project-name", "p1", "up", "-d")
+	if err != nil {
+		t.Fatal(err)
+	}
+	log, _ := os.ReadFile(logPath)
+	got := string(log)
+	// argv: compose --project-name p1 -f <discovered compose.yaml> -f <override> up -d;
+	// the fake docker appends each file's content after its path.
+	real, _ := filepath.EvalSymlinks(dir) // compose-go reports symlink-resolved paths
+	base := filepath.Join(real, "compose.yaml")
+	if !strings.HasPrefix(got, "compose\n--project-name\np1\n-f\n"+base+"\n") {
+		t.Fatalf("discovered compose file not passed explicitly:\n%s", got)
+	}
+	if strings.Count(got, "\n-f\n") != 2 {
+		t.Fatalf("expected base file and override, got:\n%s", got)
+	}
+	if !strings.Contains(got, "env_file: !override") || !strings.Contains(got, "db.enc.yaml") {
+		t.Fatalf("override content missing:\n%s", got)
+	}
+	if !strings.Contains(got, "\nup\n-d\n") {
+		t.Fatalf("subcommand args not preserved:\n%s", got)
+	}
+	if !strings.Contains(got, "DOCKER_SOPS_SECRET_db=") || !strings.Contains(got, "s3cr3t-yaml") {
+		t.Fatalf("secret plaintext not injected into the child environment:\n%s", got)
+	}
+	if !strings.Contains(stderr, "decrypted 2 file(s)") {
+		t.Errorf("notice: %q", stderr)
+	}
+}
+
+func TestWrapComposeDryRunRedactsOverride(t *testing.T) {
+	fakeDocker(t, 0)
+	dir := composeProject(t)
+	oldWd, _ := os.Getwd()
+	_ = os.Chdir(dir)
+	defer os.Chdir(oldWd)
+	out, _, err := runWrap(t, "--dry-run", "compose", "up")
+	if err != nil {
+		t.Fatal(err)
+	}
+	real, _ := filepath.EvalSymlinks(dir)
+	if out != "docker compose -f "+filepath.Join(real, "compose.yaml")+" -f <decrypted:docker-sops.override.yaml> up\n" {
+		t.Fatalf("got %q", out)
+	}
+}
+
+func TestWrapComposeWithoutEncryptedFilesAddsNothing(t *testing.T) {
+	logPath := fakeDocker(t, 0)
+	dir := t.TempDir()
+	writeFile(t, filepath.Join(dir, "compose.yaml"), "services:\n  web:\n    image: alpine\n")
+	oldWd, _ := os.Getwd()
+	_ = os.Chdir(dir)
+	defer os.Chdir(oldWd)
+	if _, _, err := runWrap(t, "compose", "ps"); err != nil {
+		t.Fatal(err)
+	}
+	log, _ := os.ReadFile(logPath)
+	if string(log) != "compose\nps\n" {
+		t.Fatalf("got %q", log)
+	}
+}
+
+func TestWrapComposeSubcommandWithoutProjectPassesThrough(t *testing.T) {
+	logPath := fakeDocker(t, 0)
+	oldWd, _ := os.Getwd()
+	_ = os.Chdir(t.TempDir())
+	defer os.Chdir(oldWd)
+	if _, _, err := runWrap(t, "compose", "version"); err != nil {
+		t.Fatal(err)
+	}
+	log, _ := os.ReadFile(logPath)
+	if string(log) != "compose\nversion\n" {
+		t.Fatalf("got %q", log)
 	}
 }

@@ -175,12 +175,26 @@ scanned, including anything after `--`.
 Secrets that use `environment:` or `external:` are untouched. Compose files
 that are themselves encrypted (rare) are handled by 3.3 before this step.
 
-Open question to settle with a spike in phase 3: for non-Swarm `up`, Compose
-bind-mounts `file:` secrets, so the decrypted copy must exist while the
-container runs. Two acceptable answers: (a) convert those entries to
-`environment:` secrets and inject the value into the child's environment, or
-(b) keep the temp dir alive under `~/.docker/sops/<project>/` and prune it on
-`docker sops compose down`. The spike decides.
+Secrets and configs are handled differently from env files, because for
+non-Swarm `up` Compose bind-mounts `file:` secrets, so a decrypted temp copy
+would have to outlive the plugin. The spike (2026-09-12, Compose 5.5.1 on
+Docker Desktop) confirmed that `file:` secrets are bind mounts while
+`environment:` secrets are copied into the container with no mount. The
+override therefore replaces each encrypted secret/config entry with an
+environment-sourced one, tagged `!override` so the original `file:` key is
+dropped:
+
+```yaml
+secrets:
+  db_password: !override
+    environment: DOCKER_SOPS_SECRET_db_password
+```
+
+The plaintext is added only to the environment of the child `docker compose`
+process, so it never touches disk and does not depend on the temp store.
+User-set `name`, `labels`, `driver`, `driver_opts` and `template_driver`
+are carried over. Content containing NUL bytes or larger than 64 KiB falls
+back to a decrypted temp file with a warning on stderr.
 
 ### 3.5 Re-exec and lifecycle
 
@@ -242,9 +256,9 @@ All messages go to stderr; stdout is reserved for the wrapped command and for
 
 - Decrypted material is written only to a private temp directory and only
   for as long as the child process runs (Compose `up -d` caveat in 3.4).
-- Decrypted values are never placed in argv (visible in `ps`) or in the
-  environment of the child, except for the explicit Compose `environment:`
-  secret conversion if the spike chooses it.
+- Decrypted values are never placed in argv (visible in `ps`). They enter
+  the child's environment only for Compose secrets and configs, which
+  Compose copies into the container without any mount.
 - The plugin does not log file contents at any verbosity.
 - Hardening backlog (post-v1): pass decrypted env files through inherited
   file descriptors (`--env-file /dev/fd/3`) so nothing touches disk.

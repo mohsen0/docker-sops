@@ -99,18 +99,31 @@ func runWrapper(cmd *cobra.Command, args []string) error {
 	}
 	argv := rw.Args
 	decrypted := rw.Decrypted
+	redactions := decrypted
+	env := childEnv
 
 	if argv[0] == "compose" {
-		argv, decrypted, err = rewriteCompose(cmd.Context(), argv, decrypted, store, opts)
+		cr, err := rewriteCompose(cmd.Context(), argv, decrypted, store, opts)
 		if err != nil {
 			return withKeyHint(err)
+		}
+		argv, decrypted = cr.argv, cr.decrypted
+		redactions = decrypted
+		if cr.overridePath != "" {
+			redactions = append(redactions, argscan.Decrypted{Path: cr.overridePath})
+		}
+		if len(cr.env) > 0 {
+			env = append(append([]string{}, childEnv...), cr.env...)
+		}
+		for _, w := range cr.warnings {
+			fmt.Fprintf(cmd.ErrOrStderr(), "docker sops: warning: %s\n", w)
 		}
 	}
 
 	full := append(reexec.GlobalFlags(pluginArgv, pluginName), argv...)
 
 	if opts.dryRun {
-		_, err := fmt.Fprintln(cmd.OutOrStdout(), "docker "+strings.Join(redact(full, decrypted), " "))
+		_, err := fmt.Fprintln(cmd.OutOrStdout(), "docker "+strings.Join(redact(full, redactions), " "))
 		return err
 	}
 	if n := len(decrypted); n > 0 && !opts.quiet {
@@ -125,7 +138,7 @@ func runWrapper(cmd *cobra.Command, args []string) error {
 		Stdin:  cmd.InOrStdin(),
 		Stdout: cmd.OutOrStdout(),
 		Stderr: cmd.ErrOrStderr(),
-		Env:    childEnv,
+		Env:    env,
 	})
 	if err != nil {
 		return err

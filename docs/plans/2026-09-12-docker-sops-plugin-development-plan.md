@@ -105,10 +105,9 @@ Exit criteria: tag `v0.1.0`. Works for `run`, `create`, `build`,
 
 ## Phase 3 — Compose integration (2–3 days)
 
-Spike first (½ day, throwaway): confirm how Compose 5.x materializes
-`secrets.<n>.file` for non-Swarm `up` (bind mount vs copy) and whether
-`environment:` secrets are copied into the container. Record the answer in
-the spec and pick option (a) or (b) from spec §3.4.
+Spike (done 2026-09-12): Compose 5.5.1 bind-mounts `file:` secrets and
+copies `environment:` secrets into the container. Decision recorded in spec
+§3.4: encrypted secrets/configs become environment-sourced entries.
 
 Deliverables:
 - `internal/composefix`: `Load(flags ComposeFlags) (*types.Project, error)`;
@@ -159,6 +158,17 @@ Exit criteria: tag `v0.2.0`.
 - Homebrew tap formula (`mohsen0/tap/docker-sops`) that symlinks the plugin.
 - Release workflow on tag push; CI matrix adds the e2e suite.
 - Tag `v1.0.0`.
+
+## Status (2026-09-12)
+
+Phases 0–5 are implemented on `main`: decrypt, wrapper mode (run, build,
+secret, config, stack and any other command), Compose integration with
+environment-sourced secrets, keychain key storage, encrypt/edit pass-through,
+GoReleaser release pipeline, install script and Homebrew formula. Unit
+coverage is 78–95% per package; e2e tests cover run, build, compose and
+decrypt against a live daemon. Remaining before tagging v1.0.0: push, let CI
+run on Linux, create the `mohsen0/homebrew-tap` repository and the
+`HOMEBREW_TAP_GITHUB_TOKEN` secret, then tag.
 
 ## Phase 6 — Hardening backlog (as needed)
 
