@@ -24,7 +24,8 @@ Homebrew:
 
 ```sh
 brew tap mohsen0/docker-sops https://github.com/mohsen0/docker-sops
-brew install --cask docker-sops
+brew install docker-sops
+mkdir -p ~/.docker/cli-plugins && ln -sfn "$(brew --prefix)/opt/docker-sops/bin/docker-sops" ~/.docker/cli-plugins/docker-sops
 ```
 
 Manual: download the binary for your platform from the
