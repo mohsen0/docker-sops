@@ -42,7 +42,7 @@ commands can consume them without leaving plaintext behind.`,
 			return plugin.PersistentPreRunE(cmd, args)
 		},
 	}
-	root.AddCommand(newVersionCommand(dockerCLI))
+	root.AddCommand(newVersionCommand(dockerCLI), newDecryptCommand())
 	return root
 }
 

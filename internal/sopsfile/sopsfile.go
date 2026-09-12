@@ -16,6 +16,9 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// ErrNotEncrypted is returned by Decrypt for files without sops metadata.
+var ErrNotEncrypted = errors.New("not a sops-encrypted file")
+
 // sniffLimit bounds how much of a file is inspected for sops metadata.
 const sniffLimit = 1 << 20
 
@@ -177,7 +180,7 @@ func Decrypt(path string) ([]byte, error) {
 		return nil, err
 	}
 	if !Detect(data) {
-		return nil, fmt.Errorf("%s: not a sops-encrypted file", path)
+		return nil, fmt.Errorf("%s: %w", path, ErrNotEncrypted)
 	}
 	format := InferFormat(path, data)
 	out, err := decrypt.Data(data, format)
