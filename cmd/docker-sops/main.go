@@ -10,13 +10,13 @@ import (
 	"github.com/docker/cli/cli/command"
 	"github.com/spf13/cobra"
 
-	"github.com/mohsen0/sops-docker-cli-plugin/internal/version"
+	"github.com/mohsen0/docker-sops/internal/version"
 )
 
 const (
 	pluginName = "sops"
 	vendor     = "mohsen0"
-	homepage   = "https://github.com/mohsen0/sops-docker-cli-plugin"
+	homepage   = "https://github.com/mohsen0/docker-sops"
 	shortDesc  = "Use sops-encrypted files with docker commands"
 )
 

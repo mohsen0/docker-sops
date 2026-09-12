@@ -202,7 +202,7 @@ container runs. Two acceptable answers: (a) convert those entries to
 - Binary `docker-sops`, installed to `~/.docker/cli-plugins/` (or
   `/usr/local/lib/docker/cli-plugins/`).
 - `docker-sops docker-cli-plugin-metadata` returns
-  `{"SchemaVersion":"0.1.0","Vendor":"mohsen0","Version":"<semver>","ShortDescription":"Use sops-encrypted files with docker commands","URL":"https://github.com/mohsen0/sops-docker-cli-plugin"}`.
+  `{"SchemaVersion":"0.1.0","Vendor":"mohsen0","Version":"<semver>","ShortDescription":"Use sops-encrypted files with docker commands","URL":"https://github.com/mohsen0/docker-sops"}`.
   This is provided by `github.com/docker/cli/cli-plugins/plugin.Run`.
 - The root cobra command's `PersistentPreRunE` calls
   `plugin.PersistentPreRunE` so `--context` and friends are honoured.

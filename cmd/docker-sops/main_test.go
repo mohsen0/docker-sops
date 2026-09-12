@@ -6,7 +6,7 @@ import (
 
 	"github.com/docker/cli/cli/command"
 
-	"github.com/mohsen0/sops-docker-cli-plugin/internal/version"
+	"github.com/mohsen0/docker-sops/internal/version"
 )
 
 func TestVersionCommandPrintsVersion(t *testing.T) {

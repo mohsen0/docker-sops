@@ -22,8 +22,8 @@ docker sops decrypt secrets.enc.yaml
 From source (needs Go 1.27+):
 
 ```sh
-git clone https://github.com/mohsen0/sops-docker-cli-plugin
-cd sops-docker-cli-plugin
+git clone https://github.com/mohsen0/docker-sops
+cd docker-sops
 make install          # copies bin/docker-sops to ~/.docker/cli-plugins/
 docker sops version
 ```

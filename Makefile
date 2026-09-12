@@ -1,6 +1,6 @@
 BINARY      := docker-sops
 VERSION     ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
-LDFLAGS     := -s -w -X github.com/mohsen0/sops-docker-cli-plugin/internal/version.Version=$(VERSION)
+LDFLAGS     := -s -w -X github.com/mohsen0/docker-sops/internal/version.Version=$(VERSION)
 PLUGIN_DIR  ?= $(HOME)/.docker/cli-plugins
 SOPS        ?= sops
 AGE_KEY     := testdata/age-test-key.txt

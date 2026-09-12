@@ -13,7 +13,7 @@ make it a product.
 | sops          | 3.13.3   | fixture creation, `encrypt`/`edit` pass-through |
 | age / age-keygen | present | offline test keys                              |
 
-Module: `github.com/mohsen0/sops-docker-cli-plugin`. Key dependencies:
+Module: `github.com/mohsen0/docker-sops`. Key dependencies:
 `github.com/docker/cli/cli-plugins/{plugin,metadata}`,
 `github.com/getsops/sops/v3/decrypt`, `github.com/compose-spec/compose-go/v2`,
 `github.com/spf13/cobra`.
