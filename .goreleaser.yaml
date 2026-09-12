@@ -34,9 +34,6 @@ archives:
 checksum:
   name_template: checksums.txt
 
-sboms:
-  - artifacts: binary
-
 signs:
   - cmd: cosign
     certificate: "${artifact}.pem"

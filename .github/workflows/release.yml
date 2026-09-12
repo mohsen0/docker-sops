@@ -22,9 +22,6 @@ jobs:
         with:
           go-version-file: go.mod
 
-      - name: install syft
-        uses: anchore/sbom-action/download-syft@v0
-
       - name: install cosign
         uses: sigstore/cosign-installer@v3
 
