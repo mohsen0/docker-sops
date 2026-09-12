@@ -34,9 +34,9 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
-      - uses: golangci/golangci-lint-action@v6
-        with:
-          version: latest
+      # Built with the project's own Go toolchain, so the linter always
+      # understands the targeted Go version and the v2 config format.
+      - run: go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest run ./...
 
   licenses:
     runs-on: ubuntu-latest
