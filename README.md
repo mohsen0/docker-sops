@@ -151,6 +151,8 @@ When a key is stored and none of `SOPS_AGE_KEY`, `SOPS_AGE_KEY_FILE` or
 `SOPS_AGE_KEY_CMD` is set, the plugin uses it. It is never passed to the
 wrapped docker process. Manual recipes for macOS Keychain, Linux Secret
 Service and Windows Credential Manager are in [docs/keychain.md](docs/keychain.md).
+For an age key kept in 1Password, for AWS KMS, and for the other cloud
+backends, see [docs/key-backends.md](docs/key-backends.md).
 
 ## Comparison with helm-secrets
 
@@ -177,6 +179,7 @@ Service and Windows Credential Manager are in [docs/keychain.md](docs/keychain.m
 - [Design](docs/specs/2026-09-12-docker-sops-plugin-design.md)
 - [Development plan](docs/plans/2026-09-12-docker-sops-plugin-development-plan.md)
 - [Storing keys in the OS keychain](docs/keychain.md)
+- [Key backends: 1Password, AWS KMS and others](docs/key-backends.md)
 
 ## Development
 
