@@ -1,0 +1,43 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+  id-token: write
+  packages: none
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: install syft
+        uses: anchore/sbom-action/download-syft@v0
+
+      - name: install cosign
+        uses: sigstore/cosign-installer@v3
+
+      - name: generate THIRD_PARTY_LICENSES
+        run: |
+          go install github.com/google/go-licenses@latest
+          go-licenses report ./cmd/docker-sops --template scripts/licenses.tpl > THIRD_PARTY_LICENSES
+
+      - uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}

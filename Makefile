@@ -6,7 +6,7 @@ SOPS        ?= sops
 AGE_KEY     := testdata/age-test-key.txt
 AGE_PUBKEY  := $(shell grep '^\# public key:' $(AGE_KEY) 2>/dev/null | cut -d' ' -f4)
 
-.PHONY: build install uninstall test lint e2e fixtures licenses clean
+.PHONY: build install uninstall test lint e2e fixtures licenses clean release-snapshot release-check
 
 build:
 	CGO_ENABLED=0 go build -trimpath -ldflags '$(LDFLAGS)' -o bin/$(BINARY) ./cmd/docker-sops
@@ -38,8 +38,13 @@ fixtures:
 	done
 
 licenses:
-	go run github.com/google/go-licenses/v2@latest report ./cmd/docker-sops --template scripts/licenses.tpl > THIRD_PARTY_LICENSES 2>/dev/null || \
-	go run github.com/google/go-licenses@latest report ./cmd/docker-sops > THIRD_PARTY_LICENSES
+	go run github.com/google/go-licenses@latest report ./cmd/docker-sops --template scripts/licenses.tpl > THIRD_PARTY_LICENSES
+
+release-snapshot:
+	goreleaser release --snapshot --clean
+
+release-check:
+	goreleaser check
 
 clean:
 	rm -rf bin dist coverage.out

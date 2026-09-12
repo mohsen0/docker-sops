@@ -1,0 +1,108 @@
+version: 2
+
+project_name: docker-sops
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: docker-sops
+    main: ./cmd/docker-sops
+    binary: docker-sops
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/mohsen0/docker-sops/internal/version.Version={{.Version}}
+
+archives:
+  - id: docker-sops
+    ids:
+      - docker-sops
+    formats: [tar.gz]
+    name_template: "docker-sops_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - LICENSE
+      - NOTICE
+      - README.md
+      - THIRD_PARTY_LICENSES
+
+checksum:
+  name_template: checksums.txt
+
+sboms:
+  - artifacts: archive
+
+signs:
+  - cmd: cosign
+    certificate: "${artifact}.pem"
+    args:
+      - sign-blob
+      - --yes
+      - --output-signature=${signature}
+      - --output-certificate=${certificate}
+      - ${artifact}
+    artifacts: checksum
+
+changelog:
+  sort: asc
+  use: git
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: Bug fixes
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: Performance improvements
+      regexp: '^.*?perf(\([[:word:]]+\))??!?:.+$'
+      order: 2
+    - title: Others
+      order: 999
+  filters:
+    exclude:
+      - "^docs:"
+      - "^chore:"
+      - "^test:"
+      - "^docs\\("
+      - "^chore\\("
+      - "^test\\("
+      - Merge pull request
+      - Merge branch
+
+brews:
+  - name: docker-sops
+    repository:
+      owner: mohsen0
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    directory: Formula
+    homepage: "https://github.com/mohsen0/docker-sops"
+    description: "Docker CLI plugin that lets docker commands consume sops-encrypted files without leaving plaintext behind"
+    license: "Apache-2.0"
+    commit_author:
+      name: goreleaserbot
+      email: bot@goreleaser.com
+    install: |
+      (share/"docker-sops").install "docker-sops"
+    caveats: |
+      docker-sops is a Docker CLI plugin. Symlink it into Docker's
+      cli-plugins directory so `docker sops` can find it:
+
+        mkdir -p ~/.docker/cli-plugins && ln -sfn #{share}/docker-sops/docker-sops ~/.docker/cli-plugins/docker-sops
+
+      Homebrew formulas must not write outside their own prefix, so this
+      step cannot be done automatically.
+    test: |
+      system "#{share}/docker-sops/docker-sops", "docker-cli-plugin-metadata"
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"

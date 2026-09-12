@@ -19,7 +19,44 @@ docker sops decrypt secrets.enc.yaml
 
 ## Install
 
-From source (needs Go 1.27+):
+### Release binaries
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/mohsen0/docker-sops/main/install.sh | sh
+```
+
+Detects your OS/arch, downloads the matching release archive, verifies its
+checksum, and installs `docker-sops` into `~/.docker/cli-plugins/`. Set
+`DOCKER_SOPS_VERSION` to pin a specific tag, or `DOCKER_CLI_PLUGIN_DIR` to
+install elsewhere (e.g. `/usr/local/lib/docker/cli-plugins`).
+
+### Homebrew
+
+```sh
+brew install mohsen0/tap/docker-sops
+mkdir -p ~/.docker/cli-plugins && ln -sfn "$(brew --prefix)/share/docker-sops/docker-sops" ~/.docker/cli-plugins/docker-sops
+```
+
+Homebrew formulas cannot write outside their own prefix, so the symlink step
+is manual (the formula prints the same instructions as a caveat after
+install).
+
+### Manual
+
+Download the archive for your OS/arch from the
+[releases page](https://github.com/mohsen0/docker-sops/releases), verify it
+against the accompanying `checksums.txt`, then:
+
+```sh
+tar -xzf docker-sops_<version>_<os>_<arch>.tar.gz docker-sops
+mkdir -p ~/.docker/cli-plugins
+cp docker-sops ~/.docker/cli-plugins/docker-sops
+chmod +x ~/.docker/cli-plugins/docker-sops
+```
+
+### From source
+
+Needs Go 1.27+:
 
 ```sh
 git clone https://github.com/mohsen0/docker-sops
@@ -27,8 +64,6 @@ cd docker-sops
 make install          # copies bin/docker-sops to ~/.docker/cli-plugins/
 docker sops version
 ```
-
-Release binaries, a curl installer and a Homebrew tap arrive with v1.0.0.
 
 ## How it works
 
