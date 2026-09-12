@@ -23,23 +23,19 @@ builds:
     ldflags:
       - -s -w -X github.com/mohsen0/docker-sops/internal/version.Version={{.Version}}
 
+# Plain binaries, no archives: each asset is directly executable.
 archives:
   - id: docker-sops
     ids:
       - docker-sops
-    formats: [tar.gz]
+    formats: [binary]
     name_template: "docker-sops_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
-    files:
-      - LICENSE
-      - NOTICE
-      - README.md
-      - THIRD_PARTY_LICENSES
 
 checksum:
   name_template: checksums.txt
 
 sboms:
-  - artifacts: archive
+  - artifacts: binary
 
 signs:
   - cmd: cosign
@@ -80,6 +76,8 @@ changelog:
 
 release:
   prerelease: auto
+  extra_files:
+    - glob: THIRD_PARTY_LICENSES
 
 # The Homebrew tap lives in this repository (Casks/), so users run
 #   brew tap mohsen0/docker-sops https://github.com/mohsen0/docker-sops
@@ -106,10 +104,11 @@ homebrew_casks:
     hooks:
       post:
         install: |
-          # Docker only discovers plugins in its cli-plugins directory.
+          # The binary stanza installs the plugin as #{HOMEBREW_PREFIX}/bin/docker-sops;
+          # Docker only discovers plugins in its cli-plugins directory, so link it there.
           plugins = "#{Dir.home}/.docker/cli-plugins"
           system_command "/bin/mkdir", args: ["-p", plugins]
-          system_command "/bin/ln", args: ["-sfn", "#{staged_path}/docker-sops", "#{plugins}/docker-sops"]
+          system_command "/bin/ln", args: ["-sfn", "#{HOMEBREW_PREFIX}/bin/docker-sops", "#{plugins}/docker-sops"]
     caveats: |
       Installed as a Docker CLI plugin and linked into ~/.docker/cli-plugins.
       Run `docker sops --help` to get started.

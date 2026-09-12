@@ -28,7 +28,6 @@ need_cmd() {
 }
 
 need_cmd curl
-need_cmd tar
 need_cmd sed
 
 detect_os() {
@@ -62,10 +61,10 @@ fi
 
 log "installing docker-sops ${VERSION} (${OS}/${ARCH})"
 
-# Version in the archive/checksum filenames has the leading 'v' stripped.
+# Version in the asset/checksum filenames has the leading 'v' stripped.
 VERSION_NUM=$(echo "$VERSION" | sed 's/^v//')
-ARCHIVE="docker-sops_${VERSION_NUM}_${OS}_${ARCH}.tar.gz"
-ARCHIVE_URL="${DOWNLOAD_BASE}/${VERSION}/${ARCHIVE}"
+ASSET="docker-sops_${VERSION_NUM}_${OS}_${ARCH}"
+ASSET_URL="${DOWNLOAD_BASE}/${VERSION}/${ASSET}"
 CHECKSUMS_URL="${DOWNLOAD_BASE}/${VERSION}/checksums.txt"
 
 TMPDIR=$(mktemp -d 2>/dev/null || mktemp -d -t docker-sops)
@@ -74,31 +73,27 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-log "downloading ${ARCHIVE_URL}"
-curl -fsSL -o "${TMPDIR}/${ARCHIVE}" "$ARCHIVE_URL" ||
-	die "failed to download ${ARCHIVE_URL} (does version ${VERSION} ship a ${OS}/${ARCH} build?)"
+log "downloading ${ASSET_URL}"
+curl -fsSL -o "${TMPDIR}/${BINARY_NAME}" "$ASSET_URL" ||
+	die "failed to download ${ASSET_URL} (does version ${VERSION} ship a ${OS}/${ARCH} build?)"
 
 log "downloading ${CHECKSUMS_URL}"
 curl -fsSL -o "${TMPDIR}/checksums.txt" "$CHECKSUMS_URL" ||
 	die "failed to download ${CHECKSUMS_URL}"
 
 log "verifying checksum"
-EXPECTED=$(grep " ${ARCHIVE}\$" "${TMPDIR}/checksums.txt" | awk '{print $1}')
-[ -n "$EXPECTED" ] || die "no checksum entry for ${ARCHIVE} in checksums.txt"
+EXPECTED=$(grep " ${ASSET}\$" "${TMPDIR}/checksums.txt" | awk '{print $1}')
+[ -n "$EXPECTED" ] || die "no checksum entry for ${ASSET} in checksums.txt"
 
 if command -v sha256sum >/dev/null 2>&1; then
-	ACTUAL=$(sha256sum "${TMPDIR}/${ARCHIVE}" | awk '{print $1}')
+	ACTUAL=$(sha256sum "${TMPDIR}/${BINARY_NAME}" | awk '{print $1}')
 elif command -v shasum >/dev/null 2>&1; then
-	ACTUAL=$(shasum -a 256 "${TMPDIR}/${ARCHIVE}" | awk '{print $1}')
+	ACTUAL=$(shasum -a 256 "${TMPDIR}/${BINARY_NAME}" | awk '{print $1}')
 else
 	die "neither sha256sum nor shasum is available to verify the download"
 fi
 
-[ "$EXPECTED" = "$ACTUAL" ] || die "checksum mismatch for ${ARCHIVE}: expected ${EXPECTED}, got ${ACTUAL}"
-
-log "extracting ${ARCHIVE}"
-tar -xzf "${TMPDIR}/${ARCHIVE}" -C "$TMPDIR" "$BINARY_NAME" ||
-	die "failed to extract ${BINARY_NAME} from ${ARCHIVE}"
+[ "$EXPECTED" = "$ACTUAL" ] || die "checksum mismatch for ${ASSET}: expected ${EXPECTED}, got ${ACTUAL}"
 
 PLUGIN_DIR="${DOCKER_CLI_PLUGIN_DIR:-$HOME/.docker/cli-plugins}"
 mkdir -p "$PLUGIN_DIR"
