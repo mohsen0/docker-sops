@@ -155,8 +155,8 @@ Exit criteria: tag `v0.2.0`.
   every archive next to `LICENSE` and `NOTICE`.
 - `install.sh` (curl-pipe) that detects OS/arch and drops the binary into
   `~/.docker/cli-plugins/`.
-- Homebrew cask kept in this repository under `Casks/` (no separate tap
-  repo); its post-install hook symlinks the plugin into `~/.docker/cli-plugins/`.
+- Homebrew: deferred. A cask quarantines unsigned binaries (Gatekeeper
+  prompt); the plan is a homebrew-core formula once the project is eligible.
 - Release workflow on tag push; CI matrix adds the e2e suite.
 - Tag `v1.0.0`.
 
@@ -167,8 +167,8 @@ secret, config, stack and any other command), Compose integration with
 environment-sourced secrets, keychain key storage, encrypt/edit pass-through,
 GoReleaser release pipeline, install script and Homebrew formula. Unit
 coverage is 78–95% per package; e2e tests cover run, build, compose and
-decrypt against a live daemon. CI is green on Linux and macOS. The Homebrew cask is committed to this
-repository by the release workflow, so no separate tap or token is needed.
+decrypt against a live daemon. CI is green on Linux and macOS. Homebrew distribution is deferred until a
+homebrew-core submission is possible.
 
 ## Phase 6 — Hardening backlog (as needed)
 

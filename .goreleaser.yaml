@@ -76,41 +76,5 @@ release:
   extra_files:
     - glob: THIRD_PARTY_LICENSES
 
-# The Homebrew tap lives in this repository (Casks/), so users run
-#   brew tap mohsen0/docker-sops https://github.com/mohsen0/docker-sops
-#   brew install --cask docker-sops
-# GoReleaser commits the generated cask to main with the workflow token.
-homebrew_casks:
-  - name: docker-sops
-    skip_upload: auto   # pre-release tags (v1.0.0-rc1) do not update the cask
-    repository:
-      owner: mohsen0
-      name: docker-sops
-      branch: main
-      # A fine-grained PAT (Contents: read/write on this repo) so the cask
-      # commit can bypass the ruleset on main as a repository admin.
-      token: "{{ .Env.RELEASE_TOKEN }}"
-    directory: Casks
-    homepage: "https://github.com/mohsen0/docker-sops"
-    description: "Docker CLI plugin that lets docker commands consume sops-encrypted files without leaving plaintext behind"
-    license: "Apache-2.0"
-    commit_author:
-      name: goreleaserbot
-      email: bot@goreleaser.com
-    commit_msg_template: "chore: update Homebrew cask to {{ .Tag }}"
-    binaries:
-      - docker-sops
-    hooks:
-      post:
-        install: |
-          # The binary stanza installs the plugin as #{HOMEBREW_PREFIX}/bin/docker-sops;
-          # Docker only discovers plugins in its cli-plugins directory, so link it there.
-          plugins = "#{Dir.home}/.docker/cli-plugins"
-          system_command "/bin/mkdir", args: ["-p", plugins]
-          system_command "/bin/ln", args: ["-sfn", "#{HOMEBREW_PREFIX}/bin/docker-sops", "#{plugins}/docker-sops"]
-    caveats: |
-      Installed as a Docker CLI plugin and linked into ~/.docker/cli-plugins.
-      Run `docker sops --help` to get started.
-
 snapshot:
   version_template: "{{ incpatch .Version }}-next"

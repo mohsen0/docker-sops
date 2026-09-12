@@ -20,13 +20,6 @@ Script (macOS and Linux):
 curl -fsSL https://raw.githubusercontent.com/mohsen0/docker-sops/main/install.sh | sh
 ```
 
-Homebrew:
-
-```sh
-brew tap mohsen0/docker-sops https://github.com/mohsen0/docker-sops
-brew install --cask docker-sops
-```
-
 Manual: download the binary for your platform from the
 [releases page](https://github.com/mohsen0/docker-sops/releases), then
 
