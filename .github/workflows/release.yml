@@ -17,6 +17,10 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          ref: main
+          # RELEASE_TOKEN is a fine-grained PAT (Contents: read/write) so the
+          # formula commit below can pass the ruleset on main as an admin.
+          token: ${{ secrets.RELEASE_TOKEN }}
 
       - uses: actions/setup-go@v7
         with:
@@ -37,4 +41,12 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+
+      - name: update Homebrew formula
+        run: |
+          scripts/update-formula.sh "${GITHUB_REF_NAME#v}" dist/checksums.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Formula/docker-sops.rb
+          git commit -m "chore: update Homebrew formula to ${GITHUB_REF_NAME}"
+          git push origin HEAD:main
