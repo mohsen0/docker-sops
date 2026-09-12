@@ -31,14 +31,13 @@ install elsewhere (e.g. `/usr/local/lib/docker/cli-plugins`).
 
 ### Homebrew
 
-```sh
-brew install mohsen0/tap/docker-sops
-mkdir -p ~/.docker/cli-plugins && ln -sfn "$(brew --prefix)/share/docker-sops/docker-sops" ~/.docker/cli-plugins/docker-sops
-```
+The tap lives in this repository, so add it by URL once, then install the
+cask. The cask links the plugin into `~/.docker/cli-plugins/` for you.
 
-Homebrew formulas cannot write outside their own prefix, so the symlink step
-is manual (the formula prints the same instructions as a caveat after
-install).
+```sh
+brew tap mohsen0/docker-sops https://github.com/mohsen0/docker-sops
+brew install --cask docker-sops
+```
 
 ### Manual
 

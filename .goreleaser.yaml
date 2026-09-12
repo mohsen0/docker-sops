@@ -78,31 +78,41 @@ changelog:
       - Merge pull request
       - Merge branch
 
-brews:
+release:
+  prerelease: auto
+
+# The Homebrew tap lives in this repository (Casks/), so users run
+#   brew tap mohsen0/docker-sops https://github.com/mohsen0/docker-sops
+#   brew install --cask docker-sops
+# GoReleaser commits the generated cask to main with the workflow token.
+homebrew_casks:
   - name: docker-sops
+    skip_upload: auto   # pre-release tags (v1.0.0-rc1) do not update the cask
     repository:
       owner: mohsen0
-      name: homebrew-tap
-      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
-    directory: Formula
+      name: docker-sops
+      branch: main
+      token: "{{ .Env.GITHUB_TOKEN }}"
+    directory: Casks
     homepage: "https://github.com/mohsen0/docker-sops"
     description: "Docker CLI plugin that lets docker commands consume sops-encrypted files without leaving plaintext behind"
     license: "Apache-2.0"
     commit_author:
       name: goreleaserbot
       email: bot@goreleaser.com
-    install: |
-      (share/"docker-sops").install "docker-sops"
+    commit_msg_template: "chore: update Homebrew cask to {{ .Tag }}"
+    binaries:
+      - docker-sops
+    hooks:
+      post:
+        install: |
+          # Docker only discovers plugins in its cli-plugins directory.
+          plugins = "#{Dir.home}/.docker/cli-plugins"
+          system_command "/bin/mkdir", args: ["-p", plugins]
+          system_command "/bin/ln", args: ["-sfn", "#{staged_path}/docker-sops", "#{plugins}/docker-sops"]
     caveats: |
-      docker-sops is a Docker CLI plugin. Symlink it into Docker's
-      cli-plugins directory so `docker sops` can find it:
-
-        mkdir -p ~/.docker/cli-plugins && ln -sfn #{share}/docker-sops/docker-sops ~/.docker/cli-plugins/docker-sops
-
-      Homebrew formulas must not write outside their own prefix, so this
-      step cannot be done automatically.
-    test: |
-      system "#{share}/docker-sops/docker-sops", "docker-cli-plugin-metadata"
+      Installed as a Docker CLI plugin and linked into ~/.docker/cli-plugins.
+      Run `docker sops --help` to get started.
 
 snapshot:
   version_template: "{{ incpatch .Version }}-next"
