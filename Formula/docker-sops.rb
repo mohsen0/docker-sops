@@ -2,28 +2,28 @@
 class DockerSops < Formula
   desc "Docker CLI plugin that decrypts sops-encrypted files on the fly"
   homepage "https://github.com/mohsen0/docker-sops"
-  version "0.2.1"
+  version "0.2.2"
   license "Apache-2.0"
 
   on_macos do
     on_arm do
       url "https://github.com/mohsen0/docker-sops/releases/download/v#{version}/docker-sops_#{version}_darwin_arm64"
-      sha256 "795d8ba2623aac03001099b00fd658045092f17f3b6e7ce0d4f7f6b7ac503f62"
+      sha256 "73a3db8c28b1f296b002549cb50ffd43e9276d201d86ab494521815c86ae893e"
     end
     on_intel do
       url "https://github.com/mohsen0/docker-sops/releases/download/v#{version}/docker-sops_#{version}_darwin_amd64"
-      sha256 "1668a43e08b8d6d51a9a558ea313774b050ae24bd4bdd18bfc47b9dac0c8a4b8"
+      sha256 "e31281bce540ff1979a8b30604809f6edc586a112e758623a27e2b667d89c89c"
     end
   end
 
   on_linux do
     on_arm do
       url "https://github.com/mohsen0/docker-sops/releases/download/v#{version}/docker-sops_#{version}_linux_arm64"
-      sha256 "c1dafdb04a9f1c4d143915d91c3d4687d737caef6e0be8d6a715ba2b9c39fe6c"
+      sha256 "89f4331241dd9a555dd4cd9d837621fec2e1dcb563daca725c1b713e6c43f66c"
     end
     on_intel do
       url "https://github.com/mohsen0/docker-sops/releases/download/v#{version}/docker-sops_#{version}_linux_amd64"
-      sha256 "89c854b84b5a886303d26ce28ed5b5cfb929f604f3da7e82a965207f8a6215de"
+      sha256 "cab43f83ce53e9c8fb75b688f0648e193a6739362221cbb17978b6b6da20b349"
     end
   end
 
