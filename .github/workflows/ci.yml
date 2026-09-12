@@ -24,7 +24,8 @@ jobs:
       - run: make build
       - run: make test
       - name: plugin metadata smoke test
-        run: ./bin/docker-sops docker-cli-plugin-metadata | grep -q '"Vendor": "mohsen0"'
+        run: |
+          ./bin/docker-sops docker-cli-plugin-metadata | grep -q '"Vendor": "mohsen0"'
 
   lint:
     runs-on: ubuntu-latest
