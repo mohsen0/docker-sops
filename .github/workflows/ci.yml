@@ -21,6 +21,10 @@ jobs:
         with:
           go-version-file: go.mod
       - run: go vet ./...
+      - name: windows cross-compile check
+        run: |
+          GOOS=windows GOARCH=amd64 go build -o /dev/null ./cmd/docker-sops
+          GOOS=windows GOARCH=amd64 go vet ./...
       - run: make build
       - run: make test
       - name: plugin metadata smoke test
