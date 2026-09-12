@@ -4,24 +4,24 @@ cask "docker-sops" do
 
   on_macos do
     on_arm do
-      sha256 "471bcd9cc651c56bdc14e15ae8f9e5e26ecf1faea78a4395d06a2341144264bb"
+      sha256 "b811431d6ec3f163fc0c83c33b4368b0157c6390e1462e995205ece6223c132a"
       url "https://github.com/mohsen0/docker-sops/releases/download/v#{version}/docker-sops_#{version}_darwin_arm64"
       binary "docker-sops_0.2.0_darwin_arm64", target: "docker-sops"
     end
     on_intel do
-      sha256 "e2663714bc49948f6dcb3e5fc5808fb670bb988c402519ed4d7069bce90a5fc2"
+      sha256 "fe2f1641f0f878eef0c93fe33c16d9276302dbbf6927d5ae31a97d207d6ff934"
       url "https://github.com/mohsen0/docker-sops/releases/download/v#{version}/docker-sops_#{version}_darwin_amd64"
       binary "docker-sops_0.2.0_darwin_amd64", target: "docker-sops"
     end
   end
   on_linux do
     on_arm do
-      sha256 "92fe8759831878101f15af3dd4110cc30c750b5816aa7a894d57e97fc139cbb9"
+      sha256 "ff6dfd1d7adf51d928dfcefec89bbf255ea09689f335bc004060916ac1821d6a"
       url "https://github.com/mohsen0/docker-sops/releases/download/v#{version}/docker-sops_#{version}_linux_arm64"
       binary "docker-sops_0.2.0_linux_arm64", target: "docker-sops"
     end
     on_intel do
-      sha256 "67873d26235c095e98dcbabef3de49a83e2edc5686d1e0ff2a0c5c899af5f367"
+      sha256 "a29ce17fc418d4f14ca3a2cfffff066cf1e23983e392072489705015fa57305f"
       url "https://github.com/mohsen0/docker-sops/releases/download/v#{version}/docker-sops_#{version}_linux_amd64"
       binary "docker-sops_0.2.0_linux_amd64", target: "docker-sops"
     end
