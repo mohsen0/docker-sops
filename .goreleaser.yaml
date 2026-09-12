@@ -87,7 +87,9 @@ homebrew_casks:
       owner: mohsen0
       name: docker-sops
       branch: main
-      token: "{{ .Env.GITHUB_TOKEN }}"
+      # A fine-grained PAT (Contents: read/write on this repo) so the cask
+      # commit can bypass the ruleset on main as a repository admin.
+      token: "{{ .Env.RELEASE_TOKEN }}"
     directory: Casks
     homepage: "https://github.com/mohsen0/docker-sops"
     description: "Docker CLI plugin that lets docker commands consume sops-encrypted files without leaving plaintext behind"
