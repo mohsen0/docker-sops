@@ -12,6 +12,14 @@ docker sops build --secret id=npmrc,src=npmrc.enc .
 docker sops decrypt secrets.enc.yaml
 ```
 
+## Why
+
+With the AI tooling we run locally now, agents and assistants have read
+access to our repos and our shells. A `.env` full of real credentials lying
+in a project folder is one prompt away from ending up somewhere it shouldn't.
+Encrypted at rest, decrypted only for the split second Docker needs it, is a
+much better default for local development in that world.
+
 ## Install
 
 Script (macOS and Linux):
