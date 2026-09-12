@@ -15,7 +15,7 @@ const testdata = "../../testdata"
 
 func TestMain(m *testing.M) {
 	abs, _ := filepath.Abs(filepath.Join(testdata, "age-test-key.txt"))
-	os.Setenv("SOPS_AGE_KEY_FILE", abs)
+	_ = os.Setenv("SOPS_AGE_KEY_FILE", abs)
 	os.Exit(m.Run())
 }
 

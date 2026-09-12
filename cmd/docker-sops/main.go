@@ -40,7 +40,7 @@ func main() {
 	// propagated silently instead of being printed as an error.
 	dockerCLI, err := command.NewDockerCli()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		_, _ = fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 	root := newRootCommand(dockerCLI)
@@ -50,7 +50,7 @@ func main() {
 		if errors.As(err, &code) {
 			os.Exit(int(code))
 		}
-		fmt.Fprintln(dockerCLI.Err(), err)
+		_, _ = fmt.Fprintln(dockerCLI.Err(), err)
 		os.Exit(1)
 	}
 }

@@ -9,3 +9,15 @@ linters:
     - ineffassign
     - misspell
     - gosec
+  settings:
+    gosec:
+      excludes:
+        # This tool exists to open user-supplied file paths and to re-exec
+        # docker/sops with user-supplied arguments.
+        - G204
+        - G304
+  exclusions:
+    rules:
+      # Tests write executable fake binaries and use fixture "secrets".
+      - path: _test\.go
+        linters: [gosec]

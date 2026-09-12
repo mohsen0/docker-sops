@@ -113,7 +113,7 @@ func IsEncrypted(path string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	buf := make([]byte, sniffLimit)
 	n, err := f.Read(buf)
 	if err != nil && !errors.Is(err, os.ErrClosed) && n == 0 && fi.Size() != 0 {

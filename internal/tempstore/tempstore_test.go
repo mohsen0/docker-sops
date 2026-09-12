@@ -11,7 +11,7 @@ func TestPutWritesPrivateFileKeepingBasename(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer s.Close()
+	defer func() { _ = s.Close() }()
 	p, err := s.Put("/some/where/app.env", []byte("A=1\n"))
 	if err != nil {
 		t.Fatal(err)
@@ -38,7 +38,7 @@ func TestPutWritesPrivateFileKeepingBasename(t *testing.T) {
 
 func TestPutSameBasenameTwiceGivesDistinctPaths(t *testing.T) {
 	s, _ := New(t.TempDir())
-	defer s.Close()
+	defer func() { _ = s.Close() }()
 	p1, _ := s.Put("a/secrets.yaml", []byte("1"))
 	p2, _ := s.Put("b/secrets.yaml", []byte("2"))
 	if p1 == p2 {
@@ -72,7 +72,7 @@ func TestNewDefaultsToOSTempDir(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer s.Close()
+	defer func() { _ = s.Close() }()
 	if filepath.Dir(s.Dir()) != filepath.Clean(os.TempDir()) {
 		t.Errorf("dir %s not under %s", s.Dir(), os.TempDir())
 	}

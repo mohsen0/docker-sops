@@ -27,7 +27,7 @@ func New(parent string) (*Store, error) {
 	if err != nil {
 		return nil, fmt.Errorf("create temp dir: %w", err)
 	}
-	if err := os.Chmod(dir, 0o700); err != nil {
+	if err := os.Chmod(dir, 0o700); err != nil { //nolint:gosec // G302: the directory must stay traversable by its owner
 		_ = os.RemoveAll(dir)
 		return nil, err
 	}

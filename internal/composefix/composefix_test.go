@@ -22,10 +22,10 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
-	os.Setenv("SOPS_AGE_KEY_FILE", abs)
+	_ = os.Setenv("SOPS_AGE_KEY_FILE", abs)
 	// Keep compose-go's default ".env" discovery out of the sample projects.
-	os.Unsetenv("COMPOSE_FILE")
-	os.Unsetenv("COMPOSE_PROJECT_NAME")
+	_ = os.Unsetenv("COMPOSE_FILE")
+	_ = os.Unsetenv("COMPOSE_PROJECT_NAME")
 	os.Exit(m.Run())
 }
 

@@ -16,7 +16,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
-	os.Setenv("SOPS_AGE_KEY_FILE", abs)
+	_ = os.Setenv("SOPS_AGE_KEY_FILE", abs)
 	os.Exit(m.Run())
 }
 

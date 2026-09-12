@@ -91,7 +91,11 @@ func runWrapper(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	defer store.Close()
+	defer func() {
+		if err := store.Close(); err != nil {
+			_, _ = fmt.Fprintf(cmd.ErrOrStderr(), "docker sops: warning: could not remove decrypted files in %s: %v\n", store.Dir(), err)
+		}
+	}()
 
 	rw, err := argscan.Plan(rest, store, argscan.Options{Detect: !opts.noDetect, Patterns: opts.patterns})
 	if err != nil {
@@ -116,7 +120,7 @@ func runWrapper(cmd *cobra.Command, args []string) error {
 			env = append(append([]string{}, childEnv...), cr.env...)
 		}
 		for _, w := range cr.warnings {
-			fmt.Fprintf(cmd.ErrOrStderr(), "docker sops: warning: %s\n", w)
+			_, _ = fmt.Fprintf(cmd.ErrOrStderr(), "docker sops: warning: %s\n", w)
 		}
 	}
 
@@ -127,7 +131,7 @@ func runWrapper(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	if n := len(decrypted); n > 0 && !opts.quiet {
-		fmt.Fprintf(cmd.ErrOrStderr(), "docker sops: decrypted %d file(s)\n", n)
+		_, _ = fmt.Fprintf(cmd.ErrOrStderr(), "docker sops: decrypted %d file(s)\n", n)
 	}
 
 	bin, err := reexec.DockerBinary()

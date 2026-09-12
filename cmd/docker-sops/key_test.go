@@ -108,11 +108,11 @@ func TestInjectKeychainKeySetsSopsAgeKeyOnlyWhenUnset(t *testing.T) {
 	secret, _ := testKey(t)
 	_ = keychain.Set(secret)
 	t.Setenv("SOPS_AGE_KEY", "")
-	os.Unsetenv("SOPS_AGE_KEY")
+	_ = os.Unsetenv("SOPS_AGE_KEY")
 	t.Setenv("SOPS_AGE_KEY_FILE", "")
-	os.Unsetenv("SOPS_AGE_KEY_FILE")
+	_ = os.Unsetenv("SOPS_AGE_KEY_FILE")
 	t.Setenv("SOPS_AGE_KEY_CMD", "")
-	os.Unsetenv("SOPS_AGE_KEY_CMD")
+	_ = os.Unsetenv("SOPS_AGE_KEY_CMD")
 	if !injectKeychainKey() {
 		t.Fatal("expected injection")
 	}
@@ -120,7 +120,7 @@ func TestInjectKeychainKeySetsSopsAgeKeyOnlyWhenUnset(t *testing.T) {
 		t.Fatalf("SOPS_AGE_KEY = %q", os.Getenv("SOPS_AGE_KEY"))
 	}
 	t.Setenv("SOPS_AGE_KEY_FILE", "/some/file")
-	os.Unsetenv("SOPS_AGE_KEY")
+	_ = os.Unsetenv("SOPS_AGE_KEY")
 	if injectKeychainKey() {
 		t.Fatal("must not inject when SOPS_AGE_KEY_FILE is set")
 	}

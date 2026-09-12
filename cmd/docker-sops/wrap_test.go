@@ -213,9 +213,8 @@ secrets:
 func TestWrapComposeAppendsOverrideBeforeSubcommand(t *testing.T) {
 	logPath := fakeDocker(t, 0)
 	dir := composeProject(t)
-	oldWd, _ := os.Getwd()
-	_ = os.Chdir(dir)
-	defer os.Chdir(oldWd)
+	real, _ := filepath.EvalSymlinks(dir) // compose-go reports symlink-resolved paths
+	t.Chdir(real)
 
 	_, stderr, err := runWrap(t, "compose", "--project-name", "p1", "up", "-d")
 	if err != nil {
@@ -225,7 +224,6 @@ func TestWrapComposeAppendsOverrideBeforeSubcommand(t *testing.T) {
 	got := string(log)
 	// argv: compose --project-name p1 -f <discovered compose.yaml> -f <override> up -d;
 	// the fake docker appends each file's content after its path.
-	real, _ := filepath.EvalSymlinks(dir) // compose-go reports symlink-resolved paths
 	base := filepath.Join(real, "compose.yaml")
 	if !strings.HasPrefix(got, "compose\n--project-name\np1\n-f\n"+base+"\n") {
 		t.Fatalf("discovered compose file not passed explicitly:\n%s", got)
@@ -250,14 +248,12 @@ func TestWrapComposeAppendsOverrideBeforeSubcommand(t *testing.T) {
 func TestWrapComposeDryRunRedactsOverride(t *testing.T) {
 	fakeDocker(t, 0)
 	dir := composeProject(t)
-	oldWd, _ := os.Getwd()
-	_ = os.Chdir(dir)
-	defer os.Chdir(oldWd)
+	real, _ := filepath.EvalSymlinks(dir)
+	t.Chdir(real)
 	out, _, err := runWrap(t, "--dry-run", "compose", "up")
 	if err != nil {
 		t.Fatal(err)
 	}
-	real, _ := filepath.EvalSymlinks(dir)
 	if out != "docker compose -f "+filepath.Join(real, "compose.yaml")+" -f <decrypted:docker-sops.override.yaml> up\n" {
 		t.Fatalf("got %q", out)
 	}
@@ -267,9 +263,7 @@ func TestWrapComposeWithoutEncryptedFilesAddsNothing(t *testing.T) {
 	logPath := fakeDocker(t, 0)
 	dir := t.TempDir()
 	writeFile(t, filepath.Join(dir, "compose.yaml"), "services:\n  web:\n    image: alpine\n")
-	oldWd, _ := os.Getwd()
-	_ = os.Chdir(dir)
-	defer os.Chdir(oldWd)
+	t.Chdir(dir)
 	if _, _, err := runWrap(t, "compose", "ps"); err != nil {
 		t.Fatal(err)
 	}
@@ -281,9 +275,7 @@ func TestWrapComposeWithoutEncryptedFilesAddsNothing(t *testing.T) {
 
 func TestWrapComposeSubcommandWithoutProjectPassesThrough(t *testing.T) {
 	logPath := fakeDocker(t, 0)
-	oldWd, _ := os.Getwd()
-	_ = os.Chdir(t.TempDir())
-	defer os.Chdir(oldWd)
+	t.Chdir(t.TempDir())
 	if _, _, err := runWrap(t, "compose", "version"); err != nil {
 		t.Fatal(err)
 	}
